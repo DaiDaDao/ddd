@@ -1,0 +1,76 @@
+{
+  "meta": {
+    "eyebrow": "RITUALS / ACTION LIBRARY",
+    "title": "把想成为的自己，拆成今天的动作。",
+    "subtitle": "清单不是约束，是在疲惫时替你记得方向。",
+    "listLabel": "我的清单",
+    "selectedLabel": "当前清单",
+    "doneLabel": "已完成",
+    "remainingLabel": "还剩",
+    "completeCopy": "完成这一组动作，给未来的自己留一个更好的起点。",
+    "startLabel": "开始这一组",
+    "resetLabel": "重置清单"
+  },
+  "checklists": [
+    {
+      "id": "posture",
+      "title": "体态纠正清单",
+      "subtitle": "让身体回到更舒服的位置",
+      "category": "身体 / 12 min",
+      "duration": "12 min",
+      "icon": "PersonStanding",
+      "tone": "coral",
+      "items": [
+        { "id": "posture-1", "label": "下巴微收，后脑勺向上延展", "hint": "保持 60 秒 · 不要抬头", "done": true },
+        { "id": "posture-2", "label": "肩胛骨向后向下，打开胸腔", "hint": "重复 12 次 · 呼吸放慢", "done": false },
+        { "id": "posture-3", "label": "靠墙站立，脚跟与背部贴墙", "hint": "保持 2 分钟 · 感受足底", "done": false },
+        { "id": "posture-4", "label": "颈部侧向拉伸，左右各一次", "hint": "每侧 30 秒 · 不要耸肩", "done": false }
+      ]
+    },
+    {
+      "id": "walking",
+      "title": "有氧走路清单",
+      "subtitle": "用一点速度换一口新鲜空气",
+      "category": "身体 / 30 min",
+      "duration": "30 min",
+      "icon": "Footprints",
+      "tone": "green",
+      "items": [
+        { "id": "walking-1", "label": "换上舒服的鞋，带上水", "hint": "出门前 · 先让行动变容易", "done": true },
+        { "id": "walking-2", "label": "快走 10 分钟，找到稳定节奏", "hint": "心率微微上升即可", "done": true },
+        { "id": "walking-3", "label": "保持快走 15 分钟，不看手机", "hint": "让眼睛看看远处", "done": false },
+        { "id": "walking-4", "label": "最后 5 分钟放慢，整理呼吸", "hint": "回到当下 · 记录感受", "done": false }
+      ]
+    },
+    {
+      "id": "indoor-run",
+      "title": "室内跑步清单",
+      "subtitle": "在房间里也能完成一次训练",
+      "category": "身体 / 22 min",
+      "duration": "22 min",
+      "icon": "Activity",
+      "tone": "blue",
+      "items": [
+        { "id": "run-1", "label": "热身：原地踏步与摆臂", "hint": "3 分钟 · 逐渐升温", "done": false },
+        { "id": "run-2", "label": "慢跑 8 分钟，保持可以说话", "hint": "不要一开始就冲刺", "done": false },
+        { "id": "run-3", "label": "间歇：快跑 30 秒 / 慢走 60 秒", "hint": "重复 6 轮", "done": false },
+        { "id": "run-4", "label": "拉伸小腿与髋部", "hint": "4 分钟 · 让身体收尾", "done": false }
+      ]
+    },
+    {
+      "id": "deep-work",
+      "title": "深度工作清单",
+      "subtitle": "给重要的事一段完整时间",
+      "category": "心智 / 50 min",
+      "duration": "50 min",
+      "icon": "Focus",
+      "tone": "yellow",
+      "items": [
+        { "id": "work-1", "label": "写下这一轮唯一要交付的结果", "hint": "一句话 · 越具体越好", "done": true },
+        { "id": "work-2", "label": "关闭通知，把手机移出视线", "hint": "让环境替你守住专注", "done": true },
+        { "id": "work-3", "label": "专注工作 40 分钟", "hint": "不追求完美，先完成", "done": false },
+        { "id": "work-4", "label": "写下下一步，干净地结束", "hint": "给明天留一个入口", "done": false }
+      ]
+    }
+  ]
+}

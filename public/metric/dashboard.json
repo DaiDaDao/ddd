@@ -1,0 +1,77 @@
+{
+  "app": {
+    "name": "METRIC",
+    "descriptor": "地球Online",
+    "tagline": "把今天过成可见的进度",
+    "date": "2026.08.31 · MONDAY",
+    "version": "v0.8.1.8 / 大刀"
+  },
+  "profile": {
+    "name": "大刀",
+    "initials": "DD",
+    "role": "实践实验员",
+    "focus": "今天，把自己放回第一优先级"
+  },
+  "navigation": [
+    { "id": "overview", "label": "总览", "caption": "Overview", "icon": "LayoutDashboard" },
+    { "id": "work", "label": "打工赚钱", "caption": "Work Mode", "icon": "BriefcaseBusiness" },
+    { "id": "growth", "label": "六维成长", "caption": "Growth Map", "icon": "Sparkles" },
+    { "id": "rituals", "label": "任务清单", "caption": "Rituals", "icon": "ListChecks" },
+    { "id": "health", "label": "健康复查", "caption": "Health Log", "icon": "Activity" }
+  ],
+  "overview": {
+    "eyebrow": "MONDAY, AUG 31",
+    "title": "今天也要，稳稳地赢。",
+    "subtitle": "把时间变成选择，把选择变成自己的生活。",
+    "primaryAction": "开始今天",
+    "secondaryAction": "打开工作计时",
+    "focusLabel": "TODAY'S FOCUS",
+    "focusTitle": "先完成最重要的 1 件事",
+    "focusBody": "不要把精力平均分给所有事情。今天只要推进一个关键结果，剩下的都可以慢慢来。",
+    "focusButton": "进入任务清单",
+    "focusQuote": "真正的进步，不是更用力，而是更清楚。",
+    "pulseLabel": "今日状态",
+    "pulseValue": "72",
+    "pulseUnit": "/ 100",
+    "pulseCaption": "节奏感不错，给自己留一口气。",
+    "pulseHint": "连续第 06 天保持记录",
+    "stats": [
+      { "label": "今日专注", "value": "02:36", "note": "比昨日 +18 分钟", "icon": "Timer", "tone": "coral" },
+      { "label": "任务完成", "value": "07 / 10", "note": "还有 3 件轻任务", "icon": "CheckCircle2", "tone": "green" },
+      { "label": "本周收入", "value": "¥ 2,160", "note": "距离目标 72%", "icon": "Wallet", "tone": "yellow" },
+      { "label": "能量指数", "value": "8.4", "note": "较上周 +0.6", "icon": "Zap", "tone": "blue" }
+    ],
+    "moduleCards": [
+      { "id": "work", "eyebrow": "01 / WORK", "title": "每一秒都在换取选择权", "description": "实时看见今天的工资，顺手算算一杯咖啡需要几秒钟。", "metric": "¥ 0.0167 / sec", "action": "进入工作模式", "icon": "BriefcaseBusiness", "tone": "coral" },
+      { "id": "growth", "eyebrow": "02 / GROWTH", "title": "六个维度，一张生活地图", "description": "身体、心智、关系与创造力，都值得被认真对待。", "metric": "平均 74 / 100", "action": "查看成长地图", "icon": "Sparkles", "tone": "green" },
+      { "id": "rituals", "eyebrow": "03 / RITUALS", "title": "把想成为的自己拆成动作", "description": "从体态纠正到室内跑步，每次只完成眼前这一格。", "metric": "04 个进行中", "action": "打开任务清单", "icon": "ListChecks", "tone": "blue" },
+      { "id": "health", "eyebrow": "04 / HEALTH", "title": "让每次复查都有下一次", "description": "按实际检查的大类录入结果，观察每项指标自己的变化轨迹。", "metric": "04 个检查大类", "action": "打开健康复查", "icon": "Activity", "tone": "yellow" }
+    ],
+    "todo": {
+      "eyebrow": "TODAY / TODO LIST",
+      "title": "今天的清单",
+      "placeholder": "加一件想完成的事...",
+      "addLabel": "添加任务",
+      "emptyLabel": "今天还没有任务，先写下一件吧。",
+      "completeLabel": "完成度",
+      "items": [
+        { "id": "todo-1", "title": "写完季度 OKR 复盘", "tag": "工作", "due": "今天 12:00", "priority": "高", "done": true },
+        { "id": "todo-2", "title": "走路 8,000 步", "tag": "身体", "due": "今天 20:30", "priority": "中", "done": false },
+        { "id": "todo-3", "title": "给妈妈回一个电话", "tag": "关系", "due": "今天 21:00", "priority": "中", "done": false },
+        { "id": "todo-4", "title": "读《思考，快与慢》20 页", "tag": "心智", "due": "睡前", "priority": "低", "done": true }
+      ]
+    },
+    "okr": {
+      "eyebrow": "Q3 / OBJECTIVE",
+      "title": "让生活的主动权，回到自己手里",
+      "description": "把注意力从“应该做什么”收回到“我真正想要什么”。",
+      "progress": 68,
+      "progressLabel": "季度进度",
+      "keyResults": [
+        { "label": "建立稳定的身体节奏", "value": "18 / 24", "unit": "次训练", "progress": 75 },
+        { "label": "完成个人作品集 1.0", "value": "06 / 10", "unit": "个章节", "progress": 60 },
+        { "label": "留出一笔自由基金", "value": "¥ 8,640", "unit": "¥ 12,000", "progress": 72 }
+      ]
+    }
+  }
+}

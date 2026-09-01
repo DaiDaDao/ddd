@@ -1,0 +1,56 @@
+{
+  "profileLabel": "圆圆",
+  "meta": {
+    "eyebrow": "YUANYUAN / MONEY IS TIME",
+    "title": "把每一秒，都算成选择权。",
+    "subtitle": "圆圆的工作时间与收入记录。",
+    "salaryLabel": "每秒公司累计",
+    "liveLabel": "正在计薪",
+    "pausedLabel": "暂停计薪",
+    "elapsedLabel": "本次计薪",
+    "startedLabel": "今日开始",
+    "buyEyebrow": "PRICE TRANSLATOR",
+    "buyTitle": "想买什么？",
+    "buyHint": "先看它需要你多少秒的时间。",
+    "secondsLabel": "需要工作",
+    "priceLabel": "商品价格",
+    "stateEyebrow": "YUANYUAN WORK STATE",
+    "stateTitle": "现在是哪一种状态？",
+    "stateHint": "状态只是个人记录，收入只按当天时间累计。",
+    "perSecondUnit": "/ sec",
+    "selectLabel": "选择商品",
+    "activeToast": "圆圆的工作状态已切换。",
+    "addedToast": "这件商品已加入圆圆的愿望清单。",
+    "passiveIncomeEyebrow": "YUANYUAN / PASSIVE INCOME",
+    "passiveIncomeTitle": "圆圆每天的被动收入",
+    "passiveIncomeHint": "记录当天固收，观察每日金额和累计曲线。",
+    "passiveIncomeDateLabel": "日期",
+    "passiveIncomeAmountLabel": "当天固收",
+    "passiveIncomeSaveLabel": "记录收入",
+    "passiveIncomeDailyLabel": "当天收入",
+    "passiveIncomeCumulativeLabel": "累计收入",
+    "passiveIncomeEmpty": "还没有圆圆的被动收入记录。"
+  },
+  "currency": "¥",
+  "monthlySalary": 26600,
+  "workPeriods": [
+    { "start": "09:00", "end": "12:00" },
+    { "start": "13:30", "end": "18:30" }
+  ],
+  "initialElapsedSeconds": 0,
+  "startedAtLabel": "09:00",
+  "defaultStateId": "working",
+  "passiveIncome": [],
+  "buyItems": [
+    { "id": "coffee", "name": "手冲咖啡", "price": 32, "note": "给脑子一点缓冲", "icon": "Coffee", "tone": "yellow" },
+    { "id": "book", "name": "一本好书", "price": 68, "note": "把注意力带回自己", "icon": "BookOpenCheck", "tone": "blue" },
+    { "id": "dinner", "name": "周五晚餐", "price": 128, "note": "和喜欢的人见面", "icon": "HeartPulse", "tone": "coral" },
+    { "id": "headphones", "name": "降噪耳机", "price": 899, "note": "给专注一个边界", "icon": "Headphones", "tone": "green" }
+  ],
+  "states": [
+    { "id": "working", "label": "打工中", "detail": "正在把时间换成收入", "icon": "BriefcaseBusiness", "tone": "coral", "isPaid": true },
+    { "id": "restroom", "label": "上厕所", "detail": "离开工位 8 分钟", "icon": "Coffee", "tone": "yellow", "isPaid": false },
+    { "id": "off", "label": "已下班", "detail": "今天的交换结束", "icon": "Sunset", "tone": "blue", "isPaid": false },
+    { "id": "quit", "label": "不干了", "detail": "拒绝无意义的加班", "icon": "CircleStop", "tone": "ink", "isPaid": false }
+  ]
+}

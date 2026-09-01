@@ -46,6 +46,8 @@
     "todayStatusUnitLabel": "单位",
     "todayStatusCaptionLabel": "状态说明",
     "todayStatusHintLabel": "底部提示",
+    "editTodayStatusLabel": "编辑今日状态",
+    "saveTodayStatusLabel": "保存今日状态",
     "habitsEyebrow": "HABIT TRACKER",
     "habitsTitle": "习惯坚持天数",
     "habitPlaceholder": "输入一个想坚持的习惯",

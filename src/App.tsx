@@ -369,6 +369,8 @@ interface UiData {
     todayStatusUnitLabel: string
     todayStatusCaptionLabel: string
     todayStatusHintLabel: string
+    editTodayStatusLabel: string
+    saveTodayStatusLabel: string
     habitsEyebrow: string
     habitsTitle: string
     habitPlaceholder: string
@@ -1347,6 +1349,20 @@ function OverviewPage({
   onRecordHabit: (habitId: string) => void
   onOpenView: (view: ViewId) => void
 }) {
+  const [isEditingTodayStatus, setIsEditingTodayStatus] = useState(false)
+  const [draftTodayStatus, setDraftTodayStatus] = useState(todayStatus)
+
+  function startEditingTodayStatus() {
+    setDraftTodayStatus(todayStatus)
+    setIsEditingTodayStatus(true)
+  }
+
+  function saveTodayStatus(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    onUpdateTodayStatus(draftTodayStatus)
+    setIsEditingTodayStatus(false)
+  }
+
   return (
     <div className="page page-overview">
       <section className="page-heading">
@@ -1389,15 +1405,19 @@ function OverviewPage({
         <section className="pulse-panel panel-paper">
           <div className="panel-topline">
             <span className="eyebrow">{todayStatus.label}</span>
-            <span className="status-badge"><span className="status-dot" /> {ui.liveBadge}</span>
+            <div className="today-status-actions">
+              <span className="status-badge"><span className="status-dot" /> {ui.liveBadge}</span>
+              {!isEditingTodayStatus && <button className="icon-button today-status-edit" type="button" aria-label={ui.editTodayStatusLabel} title={ui.editTodayStatusLabel} onClick={startEditingTodayStatus}><PenLine size={15} /></button>}
+            </div>
           </div>
-          <form className="today-status-form" onSubmit={(event) => event.preventDefault()}>
-            <label><span>{ui.todayStatusLabel}</span><input value={todayStatus.label} onChange={(event) => onUpdateTodayStatus({ ...todayStatus, label: event.target.value })} /></label>
-            <label><span>{ui.todayStatusValueLabel}</span><input value={todayStatus.value} onChange={(event) => onUpdateTodayStatus({ ...todayStatus, value: event.target.value })} /></label>
-            <label><span>{ui.todayStatusUnitLabel}</span><input value={todayStatus.unit} onChange={(event) => onUpdateTodayStatus({ ...todayStatus, unit: event.target.value })} /></label>
-            <label><span>{ui.todayStatusCaptionLabel}</span><input value={todayStatus.caption} onChange={(event) => onUpdateTodayStatus({ ...todayStatus, caption: event.target.value })} /></label>
-            <label><span>{ui.todayStatusHintLabel}</span><input value={todayStatus.hint} onChange={(event) => onUpdateTodayStatus({ ...todayStatus, hint: event.target.value })} /></label>
-          </form>
+          {isEditingTodayStatus && <form className="today-status-form" onSubmit={saveTodayStatus}>
+            <label><span>{ui.todayStatusLabel}</span><input value={draftTodayStatus.label} onChange={(event) => setDraftTodayStatus({ ...draftTodayStatus, label: event.target.value })} /></label>
+            <label><span>{ui.todayStatusValueLabel}</span><input value={draftTodayStatus.value} onChange={(event) => setDraftTodayStatus({ ...draftTodayStatus, value: event.target.value })} /></label>
+            <label><span>{ui.todayStatusUnitLabel}</span><input value={draftTodayStatus.unit} onChange={(event) => setDraftTodayStatus({ ...draftTodayStatus, unit: event.target.value })} /></label>
+            <label><span>{ui.todayStatusCaptionLabel}</span><input value={draftTodayStatus.caption} onChange={(event) => setDraftTodayStatus({ ...draftTodayStatus, caption: event.target.value })} /></label>
+            <label><span>{ui.todayStatusHintLabel}</span><input value={draftTodayStatus.hint} onChange={(event) => setDraftTodayStatus({ ...draftTodayStatus, hint: event.target.value })} /></label>
+            <button className="button button-primary today-status-save" type="submit"><Check size={15} />{ui.saveTodayStatusLabel}</button>
+          </form>}
           <div className="pulse-score">
             <strong>{todayStatus.value}</strong>
             <span>{todayStatus.unit}</span>

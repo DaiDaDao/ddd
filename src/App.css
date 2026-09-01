@@ -649,6 +649,36 @@ h3 {
   display: flex;
   flex-direction: column;
 }
+.today-status-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 15px;
+}
+.today-status-form label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 9px;
+}
+.today-status-form input,
+.habit-add-form input {
+  min-width: 0;
+  width: 100%;
+  min-height: 30px;
+  padding: 0 7px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--ink);
+  background: #fffef9;
+  font: inherit;
+  outline: 0;
+}
+.today-status-form input:focus,
+.habit-add-form input:focus {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 2px var(--coral-soft);
+}
 
 .panel-topline {
   justify-content: space-between;
@@ -840,6 +870,66 @@ h3 {
 .okr-panel {
   min-height: 450px;
   padding: 25px;
+}
+.habits-panel {
+  min-height: 450px;
+  padding: 25px;
+}
+.habit-add-form {
+  display: flex;
+  gap: 8px;
+  margin: 21px 0 13px;
+}
+.habit-add-form input {
+  flex: 1;
+}
+.habit-list {
+  display: grid;
+  gap: 0;
+}
+.habit-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 0;
+  border: 0;
+  border-bottom: 1px solid #eceae3;
+  color: var(--ink);
+  text-align: left;
+  background: transparent;
+}
+.habit-row > span {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+.habit-row strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.habit-row small {
+  color: var(--muted);
+  font-size: 10px;
+}
+.habit-row em {
+  flex: 0 0 auto;
+  color: var(--coral);
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-style: normal;
+}
+.habit-row:not(:disabled):hover strong {
+  color: var(--coral);
+}
+.habit-row.is-recorded em {
+  color: var(--green);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 750;
 }
 
 .progress-number {
@@ -1393,6 +1483,59 @@ h3 {
   gap: 8px;
 }
 
+.buy-add-form {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) minmax(130px, 0.45fr) auto;
+  gap: 10px;
+  align-items: end;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.buy-add-form label {
+  display: grid;
+  gap: 7px;
+}
+
+.buy-add-form input {
+  min-height: 40px;
+  width: 100%;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  background: #fffef9;
+  font: inherit;
+  outline: 0;
+}
+
+.buy-add-form input:focus {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px var(--coral-soft);
+}
+
+.buy-price-input {
+  position: relative;
+}
+
+.buy-price-input input {
+  padding-right: 27px;
+}
+
+.buy-price-input span {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  color: var(--muted);
+  transform: translateY(-50%);
+}
+
+.buy-add-form .button {
+  min-height: 40px;
+  white-space: nowrap;
+}
+
 .buy-item {
   min-width: 0;
   gap: 11px;
@@ -1574,6 +1717,37 @@ h3 {
 .passive-income-form .button {
   justify-self: start;
   margin-top: 4px;
+}
+
+.passive-income-heading-tools {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.passive-income-range-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f1f0e9;
+}
+
+.passive-income-range-tabs button {
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 4px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.passive-income-range-tabs button.is-active {
+  color: var(--ink);
+  background: #fffef9;
+  box-shadow: 0 1px 3px rgba(31, 43, 43, 0.08);
 }
 
 .passive-income-chart,
@@ -2437,14 +2611,6 @@ h3 {
   min-width: 150px;
   gap: 3px;
   padding: 12px 15px;
-  border-left: 2px solid var(--green);
-  background: rgba(250, 249, 244, 0.7);
-}
-
-.health-summary strong {
-  font-family: Georgia, serif;
-  font-size: 34px;
-  font-weight: 400;
   line-height: 1;
 }
 
@@ -2457,6 +2623,35 @@ h3 {
 
 .health-summary em {
   color: var(--green);
+}
+
+.health-tabs {
+  display: inline-flex;
+  gap: 3px;
+  margin-bottom: 22px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: rgba(250, 249, 244, 0.7);
+}
+
+.health-tabs button {
+  min-width: 112px;
+  min-height: 34px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 4px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.health-tabs button:hover,
+.health-tabs button.is-active {
+  color: var(--ink);
+  background: #fffef9;
+  box-shadow: 0 2px 8px rgba(31, 43, 43, 0.08);
 }
 
 .health-layout {
@@ -2849,6 +3044,73 @@ h3 {
   padding: 20px;
 }
 
+.health-favorite-group,
+.health-other-group {
+  margin-top: 18px;
+}
+
+.health-subsection-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 12px;
+}
+
+.health-subsection-heading p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.health-subsection-heading > span {
+  color: var(--coral);
+  font-family: Georgia, serif;
+  font-size: 22px;
+}
+
+.health-favorite-grid .health-trend-card {
+  border-color: rgba(232, 102, 71, 0.34);
+  box-shadow: 0 8px 20px rgba(232, 102, 71, 0.07);
+}
+
+.health-other-group {
+  border-top: 1px solid var(--line);
+}
+
+.health-other-toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 16px 2px;
+  border: 0;
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+}
+
+.health-other-toggle > span {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.health-other-toggle small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.health-other-toggle > svg {
+  color: var(--muted);
+  transition: transform 180ms ease;
+}
+
+.health-other-toggle > svg.is-expanded {
+  transform: rotate(180deg);
+}
+
 .health-trend-top {
   align-items: flex-start;
 }
@@ -2857,6 +3119,31 @@ h3 {
   display: flex;
   align-items: center;
   gap: 7px;
+}
+
+.health-favorite-button {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  flex: 0 0 29px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: #a6aaa2;
+  background: transparent;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.health-favorite-button:hover,
+.health-favorite-button.is-favorite {
+  color: var(--yellow);
+  border-color: rgba(231, 162, 59, 0.34);
+  background: rgba(231, 162, 59, 0.1);
+}
+
+.health-favorite-button:hover {
+  transform: translateY(-1px);
 }
 
 .health-trend-dot {
@@ -2875,6 +3162,61 @@ h3 {
   font-family: Georgia, serif;
   font-size: 19px;
   font-weight: 400;
+}
+
+.health-trend-title > span {
+  max-width: 45%;
+  color: var(--muted);
+  font-size: 10px;
+  text-align: right;
+}
+
+.health-latest-value {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.health-latest-value > span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.health-latest-value strong {
+  color: var(--coral);
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-weight: 400;
+  text-align: right;
+}
+
+.health-latest-value.is-latest-only {
+  min-height: 165px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+  text-align: center;
+}
+
+.health-latest-value.is-latest-only > span {
+  font-size: 11px;
+}
+
+.health-latest-value.is-latest-only strong {
+  max-width: 100%;
+  font-size: 42px;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.health-latest-value small {
+  color: var(--muted);
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 9px;
+  font-weight: 600;
 }
 
 .health-trend-title strong {
@@ -3051,6 +3393,18 @@ h3 {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .passive-income-heading-tools {
+    justify-items: start;
+  }
+
+  .passive-income-range-tabs {
+    width: 100%;
+  }
+
+  .passive-income-range-tabs button {
+    flex: 1;
+  }
+
   .checklist-index {
     padding-bottom: 12px;
   }
@@ -3129,6 +3483,7 @@ h3 {
   .work-state-summary,
   .todo-panel,
   .okr-panel,
+  .habits-panel,
   .radar-panel,
   .weekly-panel,
   .buy-panel,
@@ -3261,6 +3616,15 @@ h3 {
 
   .buy-items {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .buy-add-form {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+  }
+
+  .buy-add-form .button {
+    grid-column: 1 / -1;
+    justify-self: start;
   }
 
   .buy-result {

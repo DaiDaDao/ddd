@@ -13,6 +13,21 @@
   },
   "checklists": [
     {
+      "id": "daily-tasks",
+      "title": "每日任务清单",
+      "subtitle": "每天零点，把固定要做的事带到今天。",
+      "category": "每日任务",
+      "duration": "每日",
+      "icon": "ListChecks",
+      "tone": "coral",
+      "isDaily": true,
+      "items": [
+        { "id": "daily-water", "label": "喝够今天的水", "hint": "给身体一个稳定的开始", "done": false },
+        { "id": "daily-review", "label": "记录今天的一件完成", "hint": "睡前留下一个可见的进度", "done": false },
+        { "id": "daily-reset", "label": "整理明天的第一个动作", "hint": "让明天从清楚开始", "done": false }
+      ]
+    },
+    {
       "id": "posture",
       "title": "体态纠正清单",
       "subtitle": "让身体回到更舒服的位置",

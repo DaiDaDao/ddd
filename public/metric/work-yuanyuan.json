@@ -20,7 +20,6 @@
     "perSecondUnit": "/ sec",
     "selectLabel": "选择商品",
     "activeToast": "圆圆的工作状态已切换。",
-    "addedToast": "这件商品已加入圆圆的愿望清单。",
     "passiveIncomeEyebrow": "YUANYUAN / PASSIVE INCOME",
     "passiveIncomeTitle": "圆圆每天的被动收入",
     "passiveIncomeHint": "记录当天固收，观察每日金额和累计曲线。",
@@ -28,7 +27,6 @@
     "passiveIncomeAmountLabel": "当天固收",
     "passiveIncomeSaveLabel": "记录收入",
     "passiveIncomeDailyLabel": "当天收入",
-    "passiveIncomeCumulativeLabel": "累计收入",
     "passiveIncomeEmpty": "还没有圆圆的被动收入记录。"
   },
   "currency": "¥",
@@ -42,10 +40,7 @@
   "defaultStateId": "working",
   "passiveIncome": [],
   "buyItems": [
-    { "id": "coffee", "name": "手冲咖啡", "price": 32, "note": "给脑子一点缓冲", "icon": "Coffee", "tone": "yellow" },
-    { "id": "book", "name": "一本好书", "price": 68, "note": "把注意力带回自己", "icon": "BookOpenCheck", "tone": "blue" },
-    { "id": "dinner", "name": "周五晚餐", "price": 128, "note": "和喜欢的人见面", "icon": "HeartPulse", "tone": "coral" },
-    { "id": "headphones", "name": "降噪耳机", "price": 899, "note": "给专注一个边界", "icon": "Headphones", "tone": "green" }
+    { "id": "coffee", "name": "手冲咖啡", "price": 32, "note": "给脑子一点缓冲", "icon": "Coffee", "tone": "yellow" }
   ],
   "states": [
     { "id": "working", "label": "打工中", "detail": "正在把时间换成收入", "icon": "BriefcaseBusiness", "tone": "coral", "isPaid": true },

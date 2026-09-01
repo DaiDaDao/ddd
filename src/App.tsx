@@ -28,12 +28,12 @@ import {
   PersonStanding,
   Plus,
   RotateCcw,
+  ShoppingBag,
   Sparkles,
+  Star,
   Sunset,
   Target,
-  Timer,
   UsersRound,
-  Wallet,
   X,
   Zap,
   type LucideIcon,
@@ -75,6 +75,7 @@ const metricFileNames: Record<ViewId, string> = {
 }
 
 type WorkProfileId = 'default' | 'yuanyuan'
+type PassiveIncomeRange = 'day' | 'week' | 'month' | 'year'
 
 const workProfileFileNames: Record<WorkProfileId, string> = {
   default: 'work.json',
@@ -86,16 +87,22 @@ interface TodoItem {
   title: string
   tag: string
   due: string
-  priority: string
   done: boolean
 }
 
-interface StatItem {
+interface Habit {
+  id: string
+  name: string
+  days: number
+  lastRecordedDate: string
+}
+
+interface TodayStatus {
   label: string
   value: string
-  note: string
-  icon: string
-  tone: string
+  unit: string
+  caption: string
+  hint: string
 }
 
 interface ModuleCard {
@@ -107,13 +114,6 @@ interface ModuleCard {
   action: string
   icon: string
   tone: string
-}
-
-interface KeyResult {
-  label: string
-  value: string
-  unit: string
-  progress: number
 }
 
 interface OverviewData {
@@ -132,7 +132,6 @@ interface OverviewData {
   pulseUnit: string
   pulseCaption: string
   pulseHint: string
-  stats: StatItem[]
   moduleCards: ModuleCard[]
   todo: {
     eyebrow: string
@@ -142,14 +141,6 @@ interface OverviewData {
     emptyLabel: string
     completeLabel: string
     items: TodoItem[]
-  }
-  okr: {
-    eyebrow: string
-    title: string
-    description: string
-    progress: number
-    progressLabel: string
-    keyResults: KeyResult[]
   }
 }
 
@@ -265,6 +256,7 @@ interface Checklist {
   duration: string
   icon: string
   tone: string
+  isDaily?: boolean
   items: ChecklistItem[]
 }
 
@@ -284,6 +276,7 @@ interface HealthItem {
   name: string
   unit: string
   precision: number
+  inputType?: 'number' | 'text'
   normalRange: HealthRange
 }
 
@@ -298,7 +291,7 @@ interface HealthCategory {
 
 interface HealthResult {
   itemId: string
-  value: number
+  value: number | string
 }
 
 interface HealthRecord {
@@ -313,6 +306,7 @@ interface HealthRecord {
 
 interface HealthData {
   meta: Record<string, string>
+  favoriteItemIds?: string[]
   categories: HealthCategory[]
   records: HealthRecord[]
   dailyBaseItems: HealthItem[]
@@ -324,6 +318,8 @@ interface HealthDailyRecord {
   date: string
   values: HealthResult[]
 }
+
+type HealthTab = 'daily' | 'review'
 
 interface UiData {
   app: {
@@ -365,18 +361,30 @@ interface UiData {
     moduleAside: string
     startToast: string
     focusToast: string
-    okrToast: string
-    okrButtonLabel: string
     newTodoTag: string
     newTodoDue: string
-    newTodoPriority: string
     addTodoToast: string
-    priorityHigh: string
-    priorityLow: string
+    todayStatusLabel: string
+    todayStatusValueLabel: string
+    todayStatusUnitLabel: string
+    todayStatusCaptionLabel: string
+    todayStatusHintLabel: string
+    habitsEyebrow: string
+    habitsTitle: string
+    habitPlaceholder: string
+    habitAddLabel: string
+    habitRecordedLabel: string
+    habitEmptyLabel: string
+    habitDaysUnit: string
+    remainingTodoLabel: string
   }
   work: {
     dayUnit: string
-    wishlistLabel: string
+    buyNameLabel: string
+    buyNamePlaceholder: string
+    buyPriceLabel: string
+    buyAddLabel: string
+    buyItemAddedToast: string
     profileSwitchLabel: string
     passiveIncomeEyebrow: string
     passiveIncomeTitle: string
@@ -386,8 +394,11 @@ interface UiData {
     passiveIncomeSaveLabel: string
     passiveIncomeSavedToast: string
     passiveIncomeDailyLabel: string
-    passiveIncomeCumulativeLabel: string
     passiveIncomeEmpty: string
+    passiveIncomeRangeDayLabel: string
+    passiveIncomeRangeWeekLabel: string
+    passiveIncomeRangeMonthLabel: string
+    passiveIncomeRangeYearLabel: string
     durationUnits: {
       seconds: string
       minutes: string
@@ -465,10 +476,15 @@ interface PersistedDashboardState {
   checklists: Checklist[]
   healthRecords: HealthRecord[]
   healthDailyRecords: HealthDailyRecord[]
+  healthFavoriteItemIds: string[]
   workStateId: string
   passiveIncome: PassiveIncomeEntry[]
+  buyItemsByProfile: Record<WorkProfileId, BuyItem[]>
   growthDimensions: GrowthDimension[]
   growthEvents: GrowthEvent[]
+  todayStatus: TodayStatus
+  habits: Habit[]
+  dailyTaskSyncDate: string
 }
 
 interface WorkMetrics {
@@ -495,12 +511,11 @@ const iconMap: Record<string, LucideIcon> = {
   ListChecks,
   PenLine,
   PersonStanding,
+  ShoppingBag,
   Sparkles,
   Sunset,
   Target,
-  Timer,
   UsersRound,
-  Wallet,
   Zap,
   Droplets,
   Gauge,
@@ -591,6 +606,61 @@ function formatDateInput(date: Date) {
   return `${date.getFullYear()}-${month}-${day}`
 }
 
+function getPassiveIncomeChartData(entries: PassiveIncomeEntry[], range: PassiveIncomeRange, referenceDate = new Date()) {
+  const reference = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate())
+  const buckets: { key: string; label: string }[] = []
+
+  if (range === 'day') {
+    for (let offset = 29; offset >= 0; offset -= 1) {
+      const date = new Date(reference)
+      date.setDate(date.getDate() - offset)
+      const key = formatDateInput(date)
+      buckets.push({ key, label: key.slice(5) })
+    }
+  } else if (range === 'week') {
+    const currentMonday = new Date(reference)
+    const day = currentMonday.getDay() || 7
+    currentMonday.setDate(currentMonday.getDate() - day + 1)
+    for (let offset = 7; offset >= 0; offset -= 1) {
+      const monday = new Date(currentMonday)
+      monday.setDate(monday.getDate() - offset * 7)
+      const key = formatDateInput(monday)
+      buckets.push({ key, label: key.slice(5) })
+    }
+  } else if (range === 'month') {
+    for (let offset = 11; offset >= 0; offset -= 1) {
+      const date = new Date(reference.getFullYear(), reference.getMonth() - offset, 1)
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+      buckets.push({ key, label: key })
+    }
+  } else {
+    for (let offset = 5; offset >= 0; offset -= 1) {
+      const key = String(reference.getFullYear() - offset)
+      buckets.push({ key, label: key })
+    }
+  }
+
+  const amounts = new Map<string, number>()
+  for (const entry of entries) {
+    const entryDate = new Date(`${entry.date}T00:00:00`)
+    if (Number.isNaN(entryDate.getTime())) continue
+    let key = entry.date
+    if (range === 'week') {
+      const monday = new Date(entryDate)
+      const day = monday.getDay() || 7
+      monday.setDate(monday.getDate() - day + 1)
+      key = formatDateInput(monday)
+    } else if (range === 'month') {
+      key = entry.date.slice(0, 7)
+    } else if (range === 'year') {
+      key = entry.date.slice(0, 4)
+    }
+    amounts.set(key, (amounts.get(key) ?? 0) + entry.amount)
+  }
+
+  return buckets.map((bucket) => ({ label: bucket.label, amount: amounts.get(bucket.key) ?? 0 }))
+}
+
 function formatDashboardDate(date: Date) {
   const weekdays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY']
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -630,7 +700,7 @@ function getHealthTrendData(records: HealthRecord[], itemId: string) {
   return records
     .flatMap((record) => {
       const result = record.results.find((entry) => entry.itemId === itemId)
-      return result ? [{ date: record.label, sortDate: record.date, value: result.value }] : []
+      return result && typeof result.value === 'number' ? [{ date: record.label, sortDate: record.date, value: result.value }] : []
     })
     .sort((first, second) => first.sortDate.localeCompare(second.sortDate))
     .map(({ date, value }) => ({ date, value }))
@@ -640,10 +710,23 @@ function getDailyHealthTrendData(records: HealthDailyRecord[], itemId: string) {
   return records
     .flatMap((record) => {
       const result = record.values.find((entry) => entry.itemId === itemId)
-      return result ? [{ date: formatHealthDate(record.date), sortDate: record.date, value: result.value }] : []
+      return result && typeof result.value === 'number' ? [{ date: formatHealthDate(record.date), sortDate: record.date, value: result.value }] : []
     })
     .sort((first, second) => first.sortDate.localeCompare(second.sortDate))
     .map(({ date, value }) => ({ date, value }))
+}
+
+function getLatestHealthResult(records: HealthRecord[] | HealthDailyRecord[], itemId: string) {
+  return [...records]
+    .sort((first, second) => second.date.localeCompare(first.date))
+    .map((record) => 'results' in record ? record.results : record.values)
+    .map((results) => results.find((entry) => entry.itemId === itemId))
+    .find((result): result is HealthResult => Boolean(result))
+}
+
+function formatHealthValue(value: number | string | undefined, precision: number) {
+  if (value === undefined) return '--'
+  return typeof value === 'number' ? value.toFixed(precision) : value
 }
 
 function App() {
@@ -687,7 +770,7 @@ function App() {
     return () => {
       active = false
     }
-  }, [])
+  }, [metric])
 
   if (error && ui) {
     return (
@@ -729,14 +812,19 @@ function App() {
 function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
   const [activeView, setActiveView] = useState<ViewId>('overview')
   const [workProfileId, setWorkProfileId] = useState<WorkProfileId>('default')
-  const [todos, setTodos] = useState(metric.dashboard.overview.todo.items)
+  const [todos, setTodos] = useState(metric.dashboard.overview.todo.items.filter((todo) => !todo.done))
   const [checklists, setChecklists] = useState(metric.rituals.checklists)
   const [healthRecords, setHealthRecords] = useState(metric.health.records)
   const [healthDailyRecords, setHealthDailyRecords] = useState(metric.health.dailyBase ?? [])
+  const [healthFavoriteItemIds, setHealthFavoriteItemIds] = useState<string[]>(metric.health.favoriteItemIds ?? [])
   const [workStateId, setWorkStateId] = useState(metric.work.defaultStateId)
   const [passiveIncome, setPassiveIncome] = useState(metric.work.passiveIncome ?? [])
+  const [buyItemsByProfile, setBuyItemsByProfile] = useState<Record<WorkProfileId, BuyItem[]>>({ default: metric.work.buyItems ?? [], yuanyuan: metric.workYuanyuan.buyItems ?? [] })
   const [growthDimensions, setGrowthDimensions] = useState(metric.growth.dimensions)
   const [growthEvents, setGrowthEvents] = useState(metric.growth.events ?? [])
+  const [todayStatus, setTodayStatus] = useState<TodayStatus>({ label: metric.dashboard.overview.pulseLabel, value: metric.dashboard.overview.pulseValue, unit: metric.dashboard.overview.pulseUnit, caption: metric.dashboard.overview.pulseCaption, hint: metric.dashboard.overview.pulseHint })
+  const [habits, setHabits] = useState<Habit[]>([])
+  const [dailyTaskSyncDate, setDailyTaskSyncDate] = useState('')
   const workData = workProfileId === 'yuanyuan' ? metric.workYuanyuan : metric.work
   const workMetrics = calculateWorkMetrics(workData)
   const [clockNow, setClockNow] = useState(() => new Date())
@@ -751,19 +839,27 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
   const currentWorkState = workData.states.find((state) => state.id === workStateId) ?? workData.states[0]
   const paidSeconds = Math.min(calculatePaidSeconds(workData, clockNow), workMetrics.paidSecondsPerDay)
   const workHoursActive = isWithinWorkHours(workData, clockNow)
+  const dailyChecklistTemplate = metric.rituals.checklists.find((checklist) => checklist.isDaily)
 
   useEffect(() => {
     let active = true
     readPersistedState<PersistedDashboardState>('dashboard').then((storedState) => {
       if (!active) return
-      if (storedState && Array.isArray(storedState.todos)) setTodos(storedState.todos)
-      if (storedState && Array.isArray(storedState.checklists)) setChecklists(storedState.checklists)
+      if (storedState && Array.isArray(storedState.todos)) setTodos(storedState.todos.filter((todo) => !todo.done))
+      if (storedState && Array.isArray(storedState.checklists)) {
+        setChecklists(dailyChecklistTemplate && !storedState.checklists.some((checklist) => checklist.isDaily) ? [...storedState.checklists, { ...dailyChecklistTemplate, items: dailyChecklistTemplate.items.map((item) => ({ ...item })) }] : storedState.checklists)
+      }
       if (storedState && Array.isArray(storedState.healthRecords)) setHealthRecords(storedState.healthRecords)
       if (storedState && Array.isArray(storedState.healthDailyRecords)) setHealthDailyRecords(storedState.healthDailyRecords)
+      if (storedState && Array.isArray(storedState.healthFavoriteItemIds)) setHealthFavoriteItemIds(storedState.healthFavoriteItemIds)
       if (storedState && typeof storedState.workStateId === 'string') setWorkStateId(storedState.workStateId)
       if (storedState && Array.isArray(storedState.passiveIncome)) setPassiveIncome(storedState.passiveIncome)
+      if (storedState && storedState.buyItemsByProfile && Array.isArray(storedState.buyItemsByProfile.default) && Array.isArray(storedState.buyItemsByProfile.yuanyuan)) setBuyItemsByProfile(storedState.buyItemsByProfile)
       if (storedState && Array.isArray(storedState.growthDimensions)) setGrowthDimensions(storedState.growthDimensions)
       if (storedState && Array.isArray(storedState.growthEvents)) setGrowthEvents(storedState.growthEvents)
+      if (storedState && storedState.todayStatus) setTodayStatus(storedState.todayStatus)
+      if (storedState && Array.isArray(storedState.habits)) setHabits(storedState.habits)
+      if (storedState && typeof storedState.dailyTaskSyncDate === 'string') setDailyTaskSyncDate(storedState.dailyTaskSyncDate)
       setStorageReady(true)
     }).catch((caught: unknown) => {
       console.error(caught)
@@ -773,20 +869,37 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
     return () => {
       active = false
     }
-  }, [])
+  }, [dailyChecklistTemplate])
 
   useEffect(() => {
     if (!storageReady) return
-    void writePersistedState('dashboard', { todos, checklists, healthRecords, healthDailyRecords, workStateId, passiveIncome, growthDimensions, growthEvents }).catch((caught: unknown) => console.error(caught))
-  }, [storageReady, todos, checklists, healthRecords, healthDailyRecords, workStateId, passiveIncome, growthDimensions, growthEvents])
+    void writePersistedState('dashboard', { todos, checklists, healthRecords, healthDailyRecords, healthFavoriteItemIds, workStateId, passiveIncome, buyItemsByProfile, growthDimensions, growthEvents, todayStatus, habits, dailyTaskSyncDate }).catch((caught: unknown) => console.error(caught))
+  }, [storageReady, todos, checklists, healthRecords, healthDailyRecords, healthFavoriteItemIds, workStateId, passiveIncome, buyItemsByProfile, growthDimensions, growthEvents, todayStatus, habits, dailyTaskSyncDate])
 
   useEffect(() => {
     if (!storageReady) return
+    const today = formatDateInput(clockNow)
+    if (dailyTaskSyncDate === today) return
+    const dailyChecklist = checklists.find((checklist) => checklist.isDaily)
+    const syncTimer = window.setTimeout(() => {
+      if (dailyChecklist) {
+        setTodos((current) => [
+          ...current.filter((todo) => !todo.id.startsWith('daily-')),
+          ...dailyChecklist.items.map((item) => ({ id: `daily-${today}-${item.id}`, title: item.label, tag: dailyChecklist.title, due: '今天', done: false })),
+        ])
+      }
+      setDailyTaskSyncDate(today)
+    }, 0)
+    return () => window.clearTimeout(syncTimer)
+  }, [storageReady, clockNow, dailyTaskSyncDate, checklists])
+
+  useEffect(() => {
+    if (!storageReady || activeView !== 'work') return
     const timer = window.setInterval(() => {
       setClockNow(new Date())
     }, 1000)
     return () => window.clearInterval(timer)
-  }, [storageReady])
+  }, [storageReady, activeView])
 
   useEffect(() => {
     if (!toast) return
@@ -800,7 +913,7 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
   }
 
   function toggleTodo(todoId: string) {
-    setTodos((current) => current.map((todo) => (todo.id === todoId ? { ...todo, done: !todo.done } : todo)))
+    setTodos((current) => current.filter((todo) => todo.id !== todoId))
   }
 
   function addTodo(title: string) {
@@ -812,7 +925,6 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
         title: cleanTitle,
           tag: ui.overview.newTodoTag,
           due: ui.overview.newTodoDue,
-          priority: ui.overview.newTodoPriority,
         done: false,
       },
       ...current,
@@ -833,6 +945,22 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
     setWorkStateId(nextWorkData.defaultStateId)
     setPassiveIncome(nextWorkData.passiveIncome ?? [])
     setClockNow(new Date())
+  }
+
+  function addBuyItem(item: BuyItem) {
+    setBuyItemsByProfile((current) => ({ ...current, [workProfileId]: [item, ...current[workProfileId]] }))
+    setToast(ui.work.buyItemAddedToast)
+  }
+
+  function addHabit(name: string) {
+    const cleanName = name.trim()
+    if (!cleanName) return
+    setHabits((current) => [...current, { id: `habit-${Date.now()}`, name: cleanName, days: 0, lastRecordedDate: '' }])
+  }
+
+  function recordHabit(habitId: string) {
+    const today = formatDateInput(clockNow)
+    setHabits((current) => current.map((habit) => habit.id === habitId && habit.lastRecordedDate !== today ? { ...habit, days: habit.days + 1, lastRecordedDate: today } : habit))
   }
 
   function toggleChecklistItem(checklistId: string, itemId: string) {
@@ -878,18 +1006,23 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
             ...metric.dashboard,
             overview: {
               ...metric.dashboard.overview,
-              todo: { ...metric.dashboard.overview.todo, items: todos },
+              pulseLabel: todayStatus.label,
+              pulseValue: todayStatus.value,
+              pulseUnit: todayStatus.unit,
+              pulseCaption: todayStatus.caption,
+              pulseHint: todayStatus.hint,
+              todo: { ...metric.dashboard.overview.todo, items: todos.map(({ id, title, tag, due, done }) => ({ id, title, tag, due, done })) },
             },
           },
         }
       case 'work':
-        return { name: workProfileFileNames[workProfileId], value: { ...workData, defaultStateId: workStateId, passiveIncome } }
+        return { name: workProfileFileNames[workProfileId], value: { ...workData, defaultStateId: workStateId, passiveIncome, buyItems: buyItemsByProfile[workProfileId] } }
       case 'growth':
         return { name: metricFileNames.growth, value: { ...metric.growth, dimensions: growthDimensions, events: growthEvents } }
       case 'rituals':
         return { name: metricFileNames.rituals, value: { ...metric.rituals, checklists } }
       case 'health':
-        return { name: metricFileNames.health, value: { ...metric.health, records: healthRecords, dailyBase: healthDailyRecords } }
+        return { name: metricFileNames.health, value: { ...metric.health, favoriteItemIds: healthFavoriteItemIds, records: healthRecords, dailyBase: healthDailyRecords } }
     }
   }
 
@@ -921,10 +1054,18 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
       checklists: checklists.map((checklist) => ({ ...checklist, items: checklist.items.map((item) => ({ ...item })) })),
       healthRecords: healthRecords.map((record) => ({ ...record, categoryIds: [...record.categoryIds], results: record.results.map((result) => ({ ...result })) })),
       healthDailyRecords: healthDailyRecords.map((record) => ({ ...record, values: record.values.map((value) => ({ ...value })) })),
+      healthFavoriteItemIds: [...healthFavoriteItemIds],
       workStateId,
       passiveIncome: passiveIncome.map((entry) => ({ ...entry })),
+      buyItemsByProfile: {
+        default: buyItemsByProfile.default.map((item) => ({ ...item })),
+        yuanyuan: buyItemsByProfile.yuanyuan.map((item) => ({ ...item })),
+      },
       growthDimensions: growthDimensions.map((dimension) => ({ ...dimension })),
       growthEvents: growthEvents.map((event) => ({ ...event })),
+      todayStatus: { ...todayStatus },
+      habits: habits.map((habit) => ({ ...habit })),
+      dailyTaskSyncDate,
     }
 
     try {
@@ -932,13 +1073,15 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
       switch (activeView) {
         case 'overview': {
           const source = await fetchMetric<DashboardData>(`/metric/${metricFileNames.overview}${resetQuery}`)
-          nextState.todos = source.overview.todo.items.map((todo) => ({ ...todo }))
+          nextState.todos = source.overview.todo.items.filter((todo) => !todo.done).map((todo) => ({ id: todo.id, title: todo.title, tag: todo.tag, due: todo.due, done: false }))
+          nextState.todayStatus = { label: source.overview.pulseLabel, value: source.overview.pulseValue, unit: source.overview.pulseUnit, caption: source.overview.pulseCaption, hint: source.overview.pulseHint }
           break
         }
         case 'work': {
           const source = await fetchMetric<WorkData>(`/metric/${workProfileFileNames[workProfileId]}${resetQuery}`)
           nextState.workStateId = source.defaultStateId
           nextState.passiveIncome = (source.passiveIncome ?? []).map((entry) => ({ ...entry }))
+          nextState.buyItemsByProfile[workProfileId] = (source.buyItems ?? []).map((item) => ({ ...item }))
           break
         }
         case 'growth': {
@@ -956,6 +1099,7 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
           const source = await fetchMetric<HealthData>(`/metric/${metricFileNames.health}${resetQuery}`)
           nextState.healthRecords = source.records.map((record) => ({ ...record, categoryIds: [...record.categoryIds], results: record.results.map((result) => ({ ...result })) }))
           nextState.healthDailyRecords = (source.dailyBase ?? []).map((record) => ({ ...record, values: record.values.map((value) => ({ ...value })) }))
+          nextState.healthFavoriteItemIds = source.favoriteItemIds ?? []
           break
         }
       }
@@ -965,10 +1109,15 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
       setChecklists(nextState.checklists)
       setHealthRecords(nextState.healthRecords)
       setHealthDailyRecords(nextState.healthDailyRecords)
+      setHealthFavoriteItemIds(nextState.healthFavoriteItemIds)
       setWorkStateId(nextState.workStateId)
       setPassiveIncome(nextState.passiveIncome)
+      setBuyItemsByProfile(nextState.buyItemsByProfile)
       setGrowthDimensions(nextState.growthDimensions)
       setGrowthEvents(nextState.growthEvents)
+      setTodayStatus(nextState.todayStatus)
+      setHabits(nextState.habits)
+      setDailyTaskSyncDate(nextState.dailyTaskSyncDate)
       setToast(ui.app.resetSuccessToast)
     } catch (caught: unknown) {
       console.error(caught)
@@ -1076,13 +1225,17 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
             <OverviewPage
               data={metric.dashboard.overview}
               ui={ui.overview}
+              todayStatus={todayStatus}
+              habits={habits}
               todos={todos}
               newTodo={newTodo}
               onNewTodoChange={setNewTodo}
               onAddTodo={addTodo}
               onToggleTodo={toggleTodo}
+              onUpdateTodayStatus={setTodayStatus}
+              onAddHabit={addHabit}
+              onRecordHabit={recordHabit}
               onOpenView={changeView}
-              onShowToast={setToast}
             />
           )}
           {activeView === 'work' && (
@@ -1095,6 +1248,7 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
               paidSeconds={paidSeconds}
               isWithinWorkHours={workHoursActive}
               passiveIncome={passiveIncome}
+              buyItems={buyItemsByProfile[workProfileId]}
               currentState={currentWorkState}
               onChangeState={changeWorkState}
               onSwitchProfile={switchWorkProfile}
@@ -1102,7 +1256,7 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
                 setPassiveIncome((current) => [...current.filter((item) => item.date !== entry.date), entry].sort((first, second) => second.date.localeCompare(first.date)))
                 setToast(ui.work.passiveIncomeSavedToast)
               }}
-              onShowToast={setToast}
+              onAddBuyItem={addBuyItem}
             />
           )}
           {activeView === 'growth' && <GrowthPage data={metric.growth} ui={ui.growth} dimensions={growthDimensions} events={growthEvents} onAddEvent={(event) => {
@@ -1125,7 +1279,9 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
               data={metric.health}
               records={healthRecords}
               dailyRecords={healthDailyRecords}
+              favoriteItemIds={healthFavoriteItemIds}
               onSaveRecord={addHealthRecord}
+              onToggleFavorite={(itemId) => setHealthFavoriteItemIds((current) => current.includes(itemId) ? current.filter((id) => id !== itemId) : [...current, itemId])}
               onSaveDailyRecord={(record) => {
                 setHealthDailyRecords((current) => [...current.filter((item) => item.date !== record.date), record].sort((first, second) => second.date.localeCompare(first.date)))
                 setToast(metric.health.meta.dailyBaseSavedToast)
@@ -1165,27 +1321,32 @@ function Dashboard({ metric, ui }: { metric: MetricData; ui: UiData }) {
 function OverviewPage({
   data,
   ui,
+  todayStatus,
+  habits,
   todos,
   newTodo,
   onNewTodoChange,
   onAddTodo,
   onToggleTodo,
+  onUpdateTodayStatus,
+  onAddHabit,
+  onRecordHabit,
   onOpenView,
-  onShowToast,
 }: {
   data: OverviewData
   ui: UiData['overview']
+  todayStatus: TodayStatus
+  habits: Habit[]
   todos: TodoItem[]
   newTodo: string
   onNewTodoChange: (value: string) => void
   onAddTodo: (value: string) => void
   onToggleTodo: (todoId: string) => void
+  onUpdateTodayStatus: (status: TodayStatus) => void
+  onAddHabit: (name: string) => void
+  onRecordHabit: (habitId: string) => void
   onOpenView: (view: ViewId) => void
-  onShowToast: (message: string) => void
 }) {
-  const doneTodos = todos.filter((todo) => todo.done).length
-  const todoProgress = todos.length ? Math.round((doneTodos / todos.length) * 100) : 0
-
   return (
     <div className="page page-overview">
       <section className="page-heading">
@@ -1227,33 +1388,27 @@ function OverviewPage({
 
         <section className="pulse-panel panel-paper">
           <div className="panel-topline">
-            <span className="eyebrow">{data.pulseLabel}</span>
+            <span className="eyebrow">{todayStatus.label}</span>
             <span className="status-badge"><span className="status-dot" /> {ui.liveBadge}</span>
           </div>
+          <form className="today-status-form" onSubmit={(event) => event.preventDefault()}>
+            <label><span>{ui.todayStatusLabel}</span><input value={todayStatus.label} onChange={(event) => onUpdateTodayStatus({ ...todayStatus, label: event.target.value })} /></label>
+            <label><span>{ui.todayStatusValueLabel}</span><input value={todayStatus.value} onChange={(event) => onUpdateTodayStatus({ ...todayStatus, value: event.target.value })} /></label>
+            <label><span>{ui.todayStatusUnitLabel}</span><input value={todayStatus.unit} onChange={(event) => onUpdateTodayStatus({ ...todayStatus, unit: event.target.value })} /></label>
+            <label><span>{ui.todayStatusCaptionLabel}</span><input value={todayStatus.caption} onChange={(event) => onUpdateTodayStatus({ ...todayStatus, caption: event.target.value })} /></label>
+            <label><span>{ui.todayStatusHintLabel}</span><input value={todayStatus.hint} onChange={(event) => onUpdateTodayStatus({ ...todayStatus, hint: event.target.value })} /></label>
+          </form>
           <div className="pulse-score">
-            <strong>{data.pulseValue}</strong>
-            <span>{data.pulseUnit}</span>
+            <strong>{todayStatus.value}</strong>
+            <span>{todayStatus.unit}</span>
           </div>
-          <p className="pulse-caption">{data.pulseCaption}</p>
-          <div className="pulse-meter"><span style={{ width: `${data.pulseValue}%` }} /></div>
+          <p className="pulse-caption">{todayStatus.caption}</p>
+          <div className="pulse-meter"><span style={{ width: `${Math.min(Math.max(Number(todayStatus.value) || 0, 0), 100)}%` }} /></div>
           <div className="pulse-foot">
-            <span><Zap size={14} /> {data.pulseHint}</span>
+            <span><Zap size={14} /> {todayStatus.hint}</span>
             <ArrowUpRight size={16} />
           </div>
         </section>
-      </div>
-
-      <div className="stat-strip">
-        {data.stats.map((stat) => (
-          <div className="stat-item" key={stat.label}>
-            <div className={`stat-icon tone-${stat.tone}`}><MetricIcon name={stat.icon} size={17} /></div>
-            <div>
-              <span>{stat.label}</span>
-              <strong>{stat.value}</strong>
-              <small>{stat.note}</small>
-            </div>
-          </div>
-        ))}
       </div>
 
       <div className="content-grid">
@@ -1263,12 +1418,12 @@ function OverviewPage({
               <p className="eyebrow">{data.todo.eyebrow}</p>
               <h2>{data.todo.title}</h2>
             </div>
-            <span className="progress-number">{todoProgress}%</span>
+            <span className="progress-number">{todos.length}</span>
           </div>
           <div className="progress-row">
-            <span>{data.todo.completeLabel}</span>
-            <div className="thin-progress"><span style={{ width: `${todoProgress}%` }} /></div>
-            <span>{doneTodos}/{todos.length}</span>
+            <span>{ui.remainingTodoLabel}</span>
+            <div className="thin-progress"><span style={{ width: `${todos.length ? 100 : 0}%` }} /></div>
+            <span>{todos.length}</span>
           </div>
           <form className="todo-form" onSubmit={(event) => { event.preventDefault(); onAddTodo(newTodo) }}>
             <input value={newTodo} onChange={(event) => onNewTodoChange(event.target.value)} placeholder={data.todo.placeholder} aria-label={data.todo.placeholder} />
@@ -1280,34 +1435,21 @@ function OverviewPage({
               <button className={`todo-row ${todo.done ? 'is-done' : ''}`} key={todo.id} type="button" onClick={() => onToggleTodo(todo.id)}>
                 <span className="todo-check">{todo.done && <Check size={14} strokeWidth={2.4} />}</span>
                 <span className="todo-main"><strong>{todo.title}</strong><small>{todo.tag} · {todo.due}</small></span>
-                <span className={`priority priority-${todo.priority === ui.priorityHigh ? 'high' : todo.priority === ui.priorityLow ? 'low' : 'medium'}`}>{todo.priority}</span>
               </button>
             ))}
           </div>
         </section>
 
-        <section className="panel okr-panel">
+        <section className="panel habits-panel">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">{data.okr.eyebrow}</p>
-              <h2>{data.okr.title}</h2>
+              <p className="eyebrow">{ui.habitsEyebrow}</p>
+              <h2>{ui.habitsTitle}</h2>
             </div>
-            <Target size={22} className="section-icon" />
+            <Footprints size={22} className="section-icon" />
           </div>
-          <p className="panel-description">{data.okr.description}</p>
-          <div className="okr-progress-block">
-            <div className="okr-progress-top"><span>{data.okr.progressLabel}</span><strong>{data.okr.progress}%</strong></div>
-            <div className="okr-progress"><span style={{ width: `${data.okr.progress}%` }} /></div>
-          </div>
-          <div className="key-results">
-            {data.okr.keyResults.map((result) => (
-              <div className="key-result" key={result.label}>
-                <div className="key-result-copy"><span>{result.label}</span><strong>{result.value} <small>{result.unit}</small></strong></div>
-                <div className="mini-progress"><span style={{ width: `${result.progress}%` }} /></div>
-              </div>
-            ))}
-          </div>
-          <button className="text-button" type="button" onClick={() => onShowToast(ui.okrToast)}>{ui.okrButtonLabel} <ArrowUpRight size={15} /></button>
+          <form className="habit-add-form" onSubmit={(event) => { event.preventDefault(); const input = event.currentTarget.elements.namedItem('habit') as HTMLInputElement; onAddHabit(input.value); input.value = '' }}><input name="habit" placeholder={ui.habitPlaceholder} required /><button className="icon-button add-button" type="submit" aria-label={ui.habitAddLabel} title={ui.habitAddLabel}><Plus size={18} /></button></form>
+          <div className="habit-list">{habits.length ? habits.map((habit) => <button className={`habit-row ${habit.lastRecordedDate === formatDateInput(new Date()) ? 'is-recorded' : ''}`} type="button" key={habit.id} onClick={() => onRecordHabit(habit.id)} disabled={habit.lastRecordedDate === formatDateInput(new Date())}><span><strong>{habit.name}</strong><small>{habit.days} {ui.habitDaysUnit}</small></span><em>{habit.lastRecordedDate === formatDateInput(new Date()) ? `✔ ${ui.habitRecordedLabel}` : '+'}</em></button>) : <p className="empty-state">{ui.habitEmptyLabel}</p>}</div>
         </section>
       </div>
 
@@ -1337,6 +1479,7 @@ function WorkPage({
   profileOptions,
   metrics,
   ui,
+  buyItems,
   paidSeconds,
   isWithinWorkHours: workHoursActive,
   passiveIncome,
@@ -1344,7 +1487,7 @@ function WorkPage({
   onChangeState,
   onSwitchProfile,
   onSavePassiveIncome,
-  onShowToast,
+  onAddBuyItem,
 }: {
   data: WorkData
   profileId: WorkProfileId
@@ -1354,24 +1497,20 @@ function WorkPage({
   paidSeconds: number
   isWithinWorkHours: boolean
   passiveIncome: PassiveIncomeEntry[]
+  buyItems: BuyItem[]
   currentState: WorkState
   onChangeState: (stateId: string) => void
   onSwitchProfile: (profileId: WorkProfileId) => void
   onSavePassiveIncome: (entry: PassiveIncomeEntry) => void
-  onShowToast: (message: string) => void
+  onAddBuyItem: (item: BuyItem) => void
 }) {
-  const [selectedItemId, setSelectedItemId] = useState(data.buyItems[0]?.id ?? '')
-  const selectedItem = data.buyItems.find((item) => item.id === selectedItemId) ?? data.buyItems[0]
+  const [passiveIncomeRange, setPassiveIncomeRange] = useState<PassiveIncomeRange>('day')
+  const [selectedItemId, setSelectedItemId] = useState(buyItems[0]?.id ?? '')
+  const selectedItem = buyItems.find((item) => item.id === selectedItemId) ?? buyItems[0]
   const earned = paidSeconds * metrics.salaryPerSecond
   const buyEstimate = selectedItem ? selectedItem.price / metrics.salaryPerSecond : 0
   const paidProgress = Math.min((paidSeconds / metrics.paidSecondsPerDay) * 100, 100)
-  const passiveChartData = [...passiveIncome]
-    .sort((first, second) => first.date.localeCompare(second.date))
-    .reduce<{ date: string; amount: number; cumulative: number }[]>((chart, entry) => {
-      const previous = chart[chart.length - 1]?.cumulative ?? 0
-      chart.push({ date: entry.date, amount: entry.amount, cumulative: previous + entry.amount })
-      return chart
-    }, [])
+  const passiveChartData = getPassiveIncomeChartData(passiveIncome, passiveIncomeRange)
 
   return (
     <div className="page page-work">
@@ -1410,10 +1549,26 @@ function WorkPage({
         <div className="section-heading buy-heading"><div><p className="eyebrow">{data.meta.buyEyebrow}</p><h2>{data.meta.buyTitle}</h2></div><p>{data.meta.buyHint}</p></div>
         <div className="buy-layout">
           <div className="buy-items">
-            {data.buyItems.map((item) => (
+            <form className="buy-add-form" onSubmit={(event) => {
+              event.preventDefault()
+              const form = event.currentTarget
+              const formData = new FormData(form)
+              const name = String(formData.get('name') ?? '').trim()
+              const price = Number(formData.get('price'))
+              if (!name || !Number.isFinite(price) || price < 0) return
+              const item: BuyItem = { id: `buy-${Date.now()}`, name, price, note: '', icon: 'ShoppingBag', tone: 'coral' }
+              onAddBuyItem(item)
+              setSelectedItemId(item.id)
+              form.reset()
+            }}>
+              <label><span className="eyebrow">{ui.buyNameLabel}</span><input name="name" type="text" placeholder={ui.buyNamePlaceholder} required /></label>
+              <label><span className="eyebrow">{ui.buyPriceLabel}</span><div className="buy-price-input"><input name="price" type="number" inputMode="decimal" min="0" step="0.01" placeholder="0.00" required /><span>{data.currency}</span></div></label>
+              <button className="button button-dark" type="submit"><Plus size={16} />{ui.buyAddLabel}</button>
+            </form>
+            {buyItems.map((item) => (
               <button className={`buy-item ${selectedItemId === item.id ? 'is-selected' : ''}`} key={item.id} type="button" onClick={() => setSelectedItemId(item.id)}>
                 <span className={`buy-item-icon tone-${item.tone}`}><MetricIcon name={item.icon} size={19} /></span>
-                <span className="buy-item-copy"><strong>{item.name}</strong><small>{item.note}</small></span>
+                <span className="buy-item-copy"><strong>{item.name}</strong>{item.note && <small>{item.note}</small>}</span>
                 <span className="buy-item-price">{data.currency} {item.price}</span>
               </button>
             ))}
@@ -1425,13 +1580,12 @@ function WorkPage({
             <div className="buy-time">{formatWorkEstimate(buyEstimate, ui.durationUnits)}</div>
             <div className="buy-result-rule" />
             <div className="buy-result-meta"><span>{data.meta.priceLabel}</span><strong>{data.currency} {selectedItem?.price}</strong></div>
-            <button className="button button-dark" type="button" onClick={() => onShowToast(data.meta.addedToast)}>{ui.wishlistLabel} <Plus size={16} /></button>
           </div>
         </div>
       </section>
 
       <section className="panel passive-income-panel">
-        <div className="section-heading"><div><p className="eyebrow">{data.meta.passiveIncomeEyebrow}</p><h2>{data.meta.passiveIncomeTitle}</h2></div><p className="section-aside">{data.meta.passiveIncomeHint}</p></div>
+        <div className="section-heading"><div><p className="eyebrow">{data.meta.passiveIncomeEyebrow}</p><h2>{data.meta.passiveIncomeTitle}</h2></div><div className="passive-income-heading-tools"><p className="section-aside">{data.meta.passiveIncomeHint}</p><div className="passive-income-range-tabs" role="tablist">{(['day', 'week', 'month', 'year'] as PassiveIncomeRange[]).map((range) => <button className={passiveIncomeRange === range ? 'is-active' : ''} type="button" role="tab" aria-selected={passiveIncomeRange === range} key={range} onClick={() => setPassiveIncomeRange(range)}>{ui[`passiveIncomeRange${range[0].toUpperCase()}${range.slice(1)}Label` as 'passiveIncomeRangeDayLabel' | 'passiveIncomeRangeWeekLabel' | 'passiveIncomeRangeMonthLabel' | 'passiveIncomeRangeYearLabel']}</button>)}</div></div></div>
         <div className="passive-income-layout">
           <form className="passive-income-form" onSubmit={(event) => { event.preventDefault(); const form = event.currentTarget; const formData = new FormData(form); const date = String(formData.get('date') ?? ''); const amount = Number(formData.get('amount')); if (date && Number.isFinite(amount) && amount >= 0) { onSavePassiveIncome({ date, amount }); form.reset(); } }}>
             <label><span className="eyebrow">{data.meta.passiveIncomeDateLabel}</span><input name="date" type="date" defaultValue={formatDateInput(new Date())} required /></label>
@@ -1439,7 +1593,7 @@ function WorkPage({
             <button className="button button-dark" type="submit"><Plus size={16} />{data.meta.passiveIncomeSaveLabel}</button>
           </form>
               <div className="passive-income-chart">
-            {passiveChartData.length ? <ResponsiveContainer width="100%" height="100%"><LineChart data={passiveChartData} margin={{ top: 8, right: 10, left: -20, bottom: 0 }}><CartesianGrid stroke="#e5e3da" strokeDasharray="3 3" vertical={false} /><XAxis dataKey="date" tick={{ fill: '#7b837d', fontSize: 10 }} tickLine={false} axisLine={false} /><YAxis tick={{ fill: '#7b837d', fontSize: 10 }} tickLine={false} axisLine={false} /><Tooltip /><Line type="monotone" dataKey="amount" name={data.meta.passiveIncomeDailyLabel} stroke="#e7a23b" strokeWidth={2} dot={{ fill: '#e7a23b', r: 3 }} /><Line type="monotone" dataKey="cumulative" name={data.meta.passiveIncomeCumulativeLabel} stroke="#1f4d4b" strokeWidth={2.5} dot={{ fill: '#1f4d4b', r: 3 }} /></LineChart></ResponsiveContainer> : <div className="health-chart-empty">{data.meta.passiveIncomeEmpty}</div>}
+            {passiveChartData.some((entry) => entry.amount > 0) ? <ResponsiveContainer width="100%" height="100%"><LineChart data={passiveChartData} margin={{ top: 8, right: 10, left: -20, bottom: 0 }}><CartesianGrid stroke="#e5e3da" strokeDasharray="3 3" vertical={false} /><XAxis dataKey="label" tick={{ fill: '#7b837d', fontSize: 10 }} tickLine={false} axisLine={false} /><YAxis tick={{ fill: '#7b837d', fontSize: 10 }} tickLine={false} axisLine={false} /><Tooltip /><Line type="monotone" dataKey="amount" name={data.meta.passiveIncomeDailyLabel} stroke="#e7a23b" strokeWidth={2} dot={{ fill: '#e7a23b', r: 3 }} /></LineChart></ResponsiveContainer> : <div className="health-chart-empty">{data.meta.passiveIncomeEmpty}</div>}
           </div>
         </div>
       </section>
@@ -1464,16 +1618,22 @@ function HealthPage({
   data,
   records,
   dailyRecords,
+  favoriteItemIds,
   onSaveRecord,
+  onToggleFavorite,
   onSaveDailyRecord,
 }: {
   data: HealthData
   records: HealthRecord[]
   dailyRecords: HealthDailyRecord[]
   onSaveRecord: (record: HealthRecord) => void
+  favoriteItemIds: string[]
   onSaveDailyRecord: (record: HealthDailyRecord) => void
+  onToggleFavorite: (itemId: string) => void
 }) {
   const [date, setDate] = useState(formatDateInput(new Date()))
+  const [activeTab, setActiveTab] = useState<HealthTab>('daily')
+  const [isOtherTrendExpanded, setIsOtherTrendExpanded] = useState(false)
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
   const [values, setValues] = useState<Record<string, string>>({})
   const [doctorAdvice, setDoctorAdvice] = useState('')
@@ -1484,6 +1644,10 @@ function HealthPage({
   const selectedCategories = data.categories.filter((category) => selectedCategoryIds.includes(category.id))
   const selectedItems = selectedCategories.flatMap((category) => category.items)
   const trendItems = data.categories.flatMap((category) => category.items.map((item) => ({ category, item })))
+  const dailyTrendItems = data.dailyBaseItems.map((item) => ({ category: undefined, item }))
+  const currentTrendItems = activeTab === 'daily' ? dailyTrendItems : trendItems
+  const favoriteTrendItems = currentTrendItems.filter(({ item }) => favoriteItemIds.includes(item.id))
+  const otherTrendItems = currentTrendItems.filter(({ item }) => !favoriteItemIds.includes(item.id))
 
   function toggleCategory(categoryId: string) {
     setSelectedCategoryIds((current) => current.includes(categoryId)
@@ -1525,12 +1689,18 @@ function HealthPage({
       return
     }
 
+    const hasInvalidNumber = selectedItems.some((item) => (item.inputType ?? 'number') === 'number' && !Number.isFinite(Number(values[item.id])))
+    if (hasInvalidNumber) {
+      setFormError(data.meta.missingValueToast)
+      return
+    }
+
     onSaveRecord({
       id: `review-${date}-${records.length + 1}`,
       date,
       label: formatHealthDate(date),
       categoryIds: selectedCategoryIds,
-      results: selectedItems.map((item) => ({ itemId: item.id, value: Number(values[item.id]) })),
+      results: selectedItems.map((item) => ({ itemId: item.id, value: item.inputType === 'text' ? values[item.id] : Number(values[item.id]) })),
       doctorAdvice: doctorAdvice.trim(),
       aiAdvice: aiAdvice.trim(),
     })
@@ -1548,6 +1718,49 @@ function HealthPage({
       .join(' · ')
   }
 
+  function renderTrendCard(category: HealthCategory | undefined, item: HealthItem, sourceRecords: HealthRecord[] | HealthDailyRecord[], isDaily: boolean) {
+    const isFavorite = favoriteItemIds.includes(item.id)
+    const trendData = isDaily ? getDailyHealthTrendData(sourceRecords as HealthDailyRecord[], item.id) : getHealthTrendData(sourceRecords as HealthRecord[], item.id)
+    const latestResult = getLatestHealthResult(sourceRecords, item.id)
+    const canShowTrend = isFavorite && item.inputType !== 'text' && typeof latestResult?.value === 'number' && trendData.length > 0
+    return (
+      <article className={`panel health-trend-card ${isFavorite ? 'is-favorite' : ''}`} key={item.id}>
+        <div className="health-trend-top">
+          <div>
+            {category && <span className={`health-trend-dot tone-${category.tone}`} />}
+            <span className="eyebrow">{category?.name ?? 'DAILY BASELINE'}</span>
+          </div>
+          <button className={`health-favorite-button ${isFavorite ? 'is-favorite' : ''}`} type="button" aria-label={`${isFavorite ? data.meta.unfavoriteLabel : data.meta.favoriteLabel}${item.name}`} title={`${isFavorite ? data.meta.unfavoriteLabel : data.meta.favoriteLabel}${item.name}`} onClick={() => onToggleFavorite(item.id)}>
+            <Star size={16} fill={isFavorite ? 'currentColor' : 'none'} />
+          </button>
+        </div>
+        <div className="health-trend-title"><h3>{item.name}</h3><span>{data.meta.normalLabel} {item.normalRange.label}</span></div>
+        <div className={`health-latest-value ${canShowTrend ? '' : 'is-latest-only'}`}><span>{data.meta.latestLabel}</span><strong>{formatHealthValue(latestResult?.value, item.precision)} <small>{item.unit}</small></strong></div>
+        {canShowTrend && (
+          <div className="health-chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={trendData} margin={{ top: 8, right: 8, left: -22, bottom: 0 }}><CartesianGrid stroke="#e5e3da" strokeDasharray="3 3" vertical={false} /><ReferenceArea y1={item.normalRange.min} y2={item.normalRange.max} fill="#dce9dd" fillOpacity={0.65} /><XAxis dataKey="date" tick={{ fill: '#7b837d', fontSize: 10 }} tickLine={false} axisLine={false} /><YAxis tick={{ fill: '#7b837d', fontSize: 10 }} tickLine={false} axisLine={false} domain={['auto', 'auto']} /><Tooltip /><Line type="monotone" dataKey="value" stroke="#e86647" strokeWidth={2.5} dot={{ fill: '#e86647', r: 3 }} activeDot={{ r: 5 }} /></LineChart></ResponsiveContainer></div>
+        )}
+      </article>
+    )
+  }
+
+  function renderTrendSection(sourceRecords: HealthRecord[] | HealthDailyRecord[], isDaily: boolean) {
+    return (
+      <section className="health-trends">
+        <div className="section-heading health-trends-heading"><div><p className="eyebrow">{data.meta.trendEyebrow}</p><h2>{data.meta.trendTitle}</h2></div><p className="section-aside">{data.meta.trendHint}</p></div>
+        <section className="health-favorite-group">
+          <div className="health-subsection-heading"><div><span className="eyebrow">{data.meta.favoriteLabel}</span><p>{data.meta.favoriteHint}</p></div><span>{favoriteTrendItems.length}</span></div>
+          {favoriteTrendItems.length ? <div className="health-trend-grid">{favoriteTrendItems.map(({ category, item }) => renderTrendCard(category, item, sourceRecords, isDaily))}</div> : <p className="health-empty-note">{data.meta.favoriteEmpty}</p>}
+        </section>
+        {otherTrendItems.length > 0 && (
+          <section className="health-other-group">
+            <button className="health-other-toggle" type="button" aria-expanded={isOtherTrendExpanded} onClick={() => setIsOtherTrendExpanded((expanded) => !expanded)}><span><span className="eyebrow">{data.meta.otherLabel}</span><small>{otherTrendItems.length} {data.meta.itemCountUnit}</small></span><ChevronDown size={17} className={isOtherTrendExpanded ? 'is-expanded' : ''} /></button>
+            {isOtherTrendExpanded && <div className="health-trend-grid">{otherTrendItems.map(({ category, item }) => renderTrendCard(category, item, sourceRecords, isDaily))}</div>}
+          </section>
+        )}
+      </section>
+    )
+  }
+
   return (
     <div className="page page-health">
       <section className="page-heading">
@@ -1555,16 +1768,19 @@ function HealthPage({
         <div className="health-summary"><strong>{data.categories.length.toString().padStart(2, '0')}</strong><span>{data.meta.categoriesUnit}</span><em>{records.length} {data.meta.recordsUnit}</em></div>
       </section>
 
-      <form className="panel daily-base-panel" onSubmit={handleDailySubmit}>
+      <div className="health-tabs" role="tablist" aria-label={data.meta.trendTitle}>
+        <button className={activeTab === 'daily' ? 'is-active' : ''} type="button" role="tab" aria-selected={activeTab === 'daily'} onClick={() => { setActiveTab('daily'); setIsOtherTrendExpanded(false) }}>{data.meta.dailyTabLabel}</button>
+        <button className={activeTab === 'review' ? 'is-active' : ''} type="button" role="tab" aria-selected={activeTab === 'review'} onClick={() => { setActiveTab('review'); setIsOtherTrendExpanded(false) }}>{data.meta.reviewTabLabel}</button>
+      </div>
+
+      {activeTab === 'daily' ? <>
+        <form className="panel daily-base-panel" onSubmit={handleDailySubmit}>
         <div className="section-heading"><div><p className="eyebrow">{data.meta.dailyBaseEyebrow}</p><h2>{data.meta.dailyBaseTitle}</h2></div><span className="section-aside">{data.meta.dailyBaseHint}</span></div>
         <div className="daily-base-top"><label><span className="eyebrow">{data.meta.dateLabel}</span><input type="date" value={dailyDate} onChange={(event) => setDailyDate(event.target.value)} required /></label><button className="button button-primary" type="submit"><Check size={16} />{data.meta.dailyBaseSaveLabel}</button></div>
         <div className="daily-base-grid">{data.dailyBaseItems.map((item) => <label className="health-result-field" key={item.id}><span><strong>{item.name}</strong><small>{item.normalRange.label} {item.unit}</small></span><div className="health-input-wrap"><input type="number" inputMode="decimal" step={item.precision ? 10 ** -item.precision : 1} value={dailyValues[item.id] ?? ''} onChange={(event) => updateDailyValue(item.id, event.target.value)} placeholder="--" /><em>{item.unit}</em></div></label>)}</div>
-      </form>
-
-      <section className="daily-base-history">
-        <div className="section-heading"><div><p className="eyebrow">{data.meta.dailyBaseHistoryEyebrow}</p><h2>{data.meta.dailyBaseHistoryTitle}</h2></div><span className="section-aside">{dailyRecords.length} {data.meta.recordsUnit}</span></div>
-        <div className="daily-base-chart-grid">{data.dailyBaseItems.map((item) => { const trendData = getDailyHealthTrendData(dailyRecords, item.id); const latestValue = trendData[trendData.length - 1]?.value; return <article className="panel health-trend-card" key={item.id}><div className="health-trend-top"><span className="eyebrow">{item.name}</span><span>{item.unit}</span></div><div className="health-trend-title"><h3>{item.normalRange.label}</h3><strong>{latestValue === undefined ? '--' : latestValue.toFixed(item.precision)}</strong></div>{trendData.length ? <div className="health-chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={trendData} margin={{ top: 8, right: 8, left: -22, bottom: 0 }}><CartesianGrid stroke="#e5e3da" strokeDasharray="3 3" vertical={false} /><XAxis dataKey="date" tick={{ fill: '#7b837d', fontSize: 10 }} tickLine={false} axisLine={false} /><YAxis tick={{ fill: '#7b837d', fontSize: 10 }} tickLine={false} axisLine={false} domain={['auto', 'auto']} /><Tooltip /><Line type="monotone" dataKey="value" stroke="#1f4d4b" strokeWidth={2.5} dot={{ fill: '#1f4d4b', r: 3 }} /></LineChart></ResponsiveContainer></div> : <div className="health-chart-empty">{data.meta.dailyBaseEmpty}</div>}</article> })}</div>
-      </section>
+        </form>
+        {renderTrendSection(dailyRecords, true)}
+      </> : <>
 
       <div className="health-layout">
         <form className="panel health-form" onSubmit={handleSubmit}>
@@ -1600,7 +1816,7 @@ function HealthPage({
                 {selectedItems.map((item) => (
                   <label className="health-result-field" key={item.id}>
                     <span><strong>{item.name}</strong><small>{data.meta.normalLabel} {item.normalRange.label} {item.unit}</small></span>
-                    <div className="health-input-wrap"><input type="number" inputMode="decimal" step={item.precision ? 10 ** -item.precision : 1} value={values[item.id] ?? ''} onChange={(event) => updateValue(item.id, event.target.value)} required /><em>{item.unit}</em></div>
+                    <div className="health-input-wrap"><input type={item.inputType ?? 'number'} inputMode={item.inputType === 'text' ? 'text' : 'decimal'} step={item.inputType === 'text' ? undefined : item.precision ? 10 ** -item.precision : 1} value={values[item.id] ?? ''} onChange={(event) => updateValue(item.id, event.target.value)} required /><em>{item.unit}</em></div>
                   </label>
                 ))}
               </div>
@@ -1635,24 +1851,8 @@ function HealthPage({
         </section>
       </div>
 
-      <section className="health-trends">
-        <div className="section-heading health-trends-heading"><div><p className="eyebrow">{data.meta.trendEyebrow}</p><h2>{data.meta.trendTitle}</h2></div><p className="section-aside">{data.meta.trendHint}</p></div>
-        <div className="health-trend-grid">
-          {trendItems.map(({ category, item }) => {
-            const trendData = getHealthTrendData(records, item.id)
-            const latestValue = trendData[trendData.length - 1]?.value
-            return (
-              <article className="panel health-trend-card" key={item.id}>
-                <div className="health-trend-top"><div><span className={`health-trend-dot tone-${category.tone}`} /><span className="eyebrow">{category.name}</span></div><span>{data.meta.normalLabel} {item.normalRange.label}</span></div>
-                <div className="health-trend-title"><h3>{item.name}</h3><strong>{latestValue === undefined ? '--' : latestValue.toFixed(item.precision)} <small>{item.unit}</small></strong></div>
-                {trendData.length ? (
-                  <div className="health-chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={trendData} margin={{ top: 8, right: 8, left: -22, bottom: 0 }}><CartesianGrid stroke="#e5e3da" strokeDasharray="3 3" vertical={false} /><ReferenceArea y1={item.normalRange.min} y2={item.normalRange.max} fill="#dce9dd" fillOpacity={0.65} /><XAxis dataKey="date" tick={{ fill: '#7b837d', fontSize: 10 }} tickLine={false} axisLine={false} /><YAxis tick={{ fill: '#7b837d', fontSize: 10 }} tickLine={false} axisLine={false} domain={['auto', 'auto']} /><Tooltip /><Line type="monotone" dataKey="value" stroke="#e86647" strokeWidth={2.5} dot={{ fill: '#e86647', r: 3 }} activeDot={{ r: 5 }} /></LineChart></ResponsiveContainer></div>
-                ) : <div className="health-chart-empty">{data.meta.trendEmpty}</div>}
-              </article>
-            )
-          })}
-        </div>
-      </section>
+      {renderTrendSection(records, false)}
+      </>}
     </div>
   )
 }

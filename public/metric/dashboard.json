@@ -35,12 +35,6 @@
     "pulseUnit": "/ 100",
     "pulseCaption": "节奏感不错，给自己留一口气。",
     "pulseHint": "连续第 06 天保持记录",
-    "stats": [
-      { "label": "今日专注", "value": "02:36", "note": "比昨日 +18 分钟", "icon": "Timer", "tone": "coral" },
-      { "label": "任务完成", "value": "07 / 10", "note": "还有 3 件轻任务", "icon": "CheckCircle2", "tone": "green" },
-      { "label": "本周收入", "value": "¥ 2,160", "note": "距离目标 72%", "icon": "Wallet", "tone": "yellow" },
-      { "label": "能量指数", "value": "8.4", "note": "较上周 +0.6", "icon": "Zap", "tone": "blue" }
-    ],
     "moduleCards": [
       { "id": "work", "eyebrow": "01 / WORK", "title": "每一秒都在换取选择权", "description": "实时看见今天的工资，顺手算算一杯咖啡需要几秒钟。", "metric": "¥ 0.0167 / sec", "action": "进入工作模式", "icon": "BriefcaseBusiness", "tone": "coral" },
       { "id": "growth", "eyebrow": "02 / GROWTH", "title": "六个维度，一张生活地图", "description": "身体、心智、关系与创造力，都值得被认真对待。", "metric": "平均 74 / 100", "action": "查看成长地图", "icon": "Sparkles", "tone": "green" },
@@ -53,24 +47,10 @@
       "placeholder": "加一件想完成的事...",
       "addLabel": "添加任务",
       "emptyLabel": "今天还没有任务，先写下一件吧。",
-      "completeLabel": "完成度",
+      "completeLabel": "待完成",
       "items": [
-        { "id": "todo-1", "title": "写完季度 OKR 复盘", "tag": "工作", "due": "今天 12:00", "priority": "高", "done": true },
-        { "id": "todo-2", "title": "走路 8,000 步", "tag": "身体", "due": "今天 20:30", "priority": "中", "done": false },
-        { "id": "todo-3", "title": "给妈妈回一个电话", "tag": "关系", "due": "今天 21:00", "priority": "中", "done": false },
-        { "id": "todo-4", "title": "读《思考，快与慢》20 页", "tag": "心智", "due": "睡前", "priority": "低", "done": true }
-      ]
-    },
-    "okr": {
-      "eyebrow": "Q3 / OBJECTIVE",
-      "title": "让生活的主动权，回到自己手里",
-      "description": "把注意力从“应该做什么”收回到“我真正想要什么”。",
-      "progress": 68,
-      "progressLabel": "季度进度",
-      "keyResults": [
-        { "label": "建立稳定的身体节奏", "value": "18 / 24", "unit": "次训练", "progress": 75 },
-        { "label": "完成个人作品集 1.0", "value": "06 / 10", "unit": "个章节", "progress": 60 },
-        { "label": "留出一笔自由基金", "value": "¥ 8,640", "unit": "¥ 12,000", "progress": 72 }
+        { "id": "todo-2", "title": "走路 8,000 步", "tag": "身体", "due": "今天 20:30", "done": false },
+        { "id": "todo-3", "title": "给妈妈回一个电话", "tag": "关系", "due": "今天 21:00", "done": false }
       ]
     }
   }

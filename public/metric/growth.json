@@ -2,29 +2,135 @@
   "meta": {
     "eyebrow": "GROWTH MAP / SIX DIMENSIONS",
     "title": "把自己当成一个长期项目。",
-    "subtitle": "正常参考线是 20 分，从 10 分开始，用事件记录每一次成长。",
+    "subtitle": "正常参考线是 40 分，从 10 分开始，用事件记录每一次成长。",
     "weeklyEyebrow": "THIS WEEK",
     "weeklyTitle": "小幅度，也算前进",
-    "weeklyValue": "+8.4",
+    "weeklyValue": "+0.042",
     "weeklyUnit": "%",
     "weeklyCopy": "身体和心智一起抬头，关系维度也有了新的回应。",
     "signalTitle": "本周信号"
   },
   "dimensions": [
-    { "id": "fitness", "label": "体能", "short": "体", "score": 10, "target": 20, "note": "先从规律睡眠、走路和基础训练开始。", "icon": "PersonStanding", "tone": "coral" },
-    { "id": "professional", "label": "专业", "short": "专", "score": 10, "target": 20, "note": "把工作中的真实交付记录成可见进步。", "icon": "BriefcaseBusiness", "tone": "blue" },
-    { "id": "thinking", "label": "思维", "short": "思", "score": 10, "target": 20, "note": "练习拆解问题，再做清晰判断。", "icon": "Brain", "tone": "yellow" },
-    { "id": "knowledge", "label": "学识", "short": "学", "score": 10, "target": 20, "note": "每天积累一点能复用的知识。", "icon": "BookOpenCheck", "tone": "green" },
-    { "id": "hobby", "label": "爱好", "short": "好", "score": 10, "target": 20, "note": "给真正喜欢的事情留出固定时间。", "icon": "PenLine", "tone": "coral" },
-    { "id": "freedom", "label": "自由", "short": "自", "score": 10, "target": 20, "note": "从管理时间和现金流开始增加选择权。", "icon": "Compass", "tone": "blue" }
+    {
+      "id": "fitness",
+      "label": "体能",
+      "short": "体",
+      "score": 10.19,
+      "target": 60,
+      "note": "先从规律睡眠、走路和基础训练开始。",
+      "icon": "PersonStanding",
+      "tone": "coral"
+    },
+    {
+      "id": "professional",
+      "label": "专业",
+      "short": "专",
+      "score": 10.005,
+      "target": 60,
+      "note": "把工作中的真实交付记录成可见进步。",
+      "icon": "BriefcaseBusiness",
+      "tone": "blue"
+    },
+    {
+      "id": "thinking",
+      "label": "思维",
+      "short": "思",
+      "score": 10,
+      "target": 60,
+      "note": "练习拆解问题，再做清晰判断。",
+      "icon": "Brain",
+      "tone": "yellow"
+    },
+    {
+      "id": "knowledge",
+      "label": "学识",
+      "short": "学",
+      "score": 10,
+      "target": 60,
+      "note": "每天积累一点能复用的知识。",
+      "icon": "BookOpenCheck",
+      "tone": "green"
+    },
+    {
+      "id": "hobby",
+      "label": "爱好",
+      "short": "好",
+      "score": 10,
+      "target": 20,
+      "note": "给真正喜欢的事情留出固定时间。",
+      "icon": "PenLine",
+      "tone": "coral"
+    },
+    {
+      "id": "freedom",
+      "label": "自由",
+      "short": "自",
+      "score": 10,
+      "target": 20,
+      "note": "从管理时间和现金流开始增加选择权。",
+      "icon": "Compass",
+      "tone": "blue"
+    }
   ],
-  "eventTypes": ["工作", "学习", "运动", "关系", "生活"],
-  "normalScore": 20,
+  "eventTypes": [
+    "工作",
+    "学习",
+    "运动",
+    "关系",
+    "生活"
+  ],
+  "normalScore": 40,
   "maxScore": 100,
-  "events": [],
+  "events": [
+    {
+      "id": "growth-1788348032758",
+      "date": "2026-09-02",
+      "type": "学习",
+      "dimensionId": "professional",
+      "title": "学习了《程序员必会的50中算法》几页",
+      "points": 0.005,
+      "note": "学习了几种排序算法"
+    },
+    {
+      "id": "growth-1788347921933",
+      "date": "2026-09-02",
+      "type": "运动",
+      "dimensionId": "fitness",
+      "title": "11‘44“平均配速3.45公里",
+      "points": 0.017,
+      "note": "小垃圾，跑不动"
+    },
+    {
+      "id": "growth-1788315087645",
+      "date": "2026-09-01",
+      "type": "运动",
+      "dimensionId": "fitness",
+      "title": "日常锻炼 - 要加上之前锻炼的得分",
+      "points": 0.02,
+      "note": "胸部-腹部练习"
+    }
+  ],
   "signals": [
-    { "label": "最强维度", "value": "专业", "detail": "从一次真实交付开始", "icon": "BriefcaseBusiness", "tone": "blue" },
-    { "label": "值得照顾", "value": "体能", "detail": "今天走路 30 分钟", "icon": "PersonStanding", "tone": "yellow" },
-    { "label": "正在发生", "value": "学识", "detail": "记录一个可复用知识点", "icon": "BookOpenCheck", "tone": "coral" }
+    {
+      "label": "最强维度",
+      "value": "专业",
+      "detail": "从一次真实交付开始",
+      "icon": "BriefcaseBusiness",
+      "tone": "blue"
+    },
+    {
+      "label": "值得照顾",
+      "value": "体能",
+      "detail": "今天走路 30 分钟",
+      "icon": "PersonStanding",
+      "tone": "yellow"
+    },
+    {
+      "label": "正在发生",
+      "value": "学识",
+      "detail": "记录一个可复用知识点",
+      "icon": "BookOpenCheck",
+      "tone": "coral"
+    }
   ]
 }

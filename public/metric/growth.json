@@ -15,7 +15,7 @@
       "id": "fitness",
       "label": "体能",
       "short": "体",
-      "score": 10.19,
+      "score": 10.219999999999999,
       "target": 60,
       "note": "先从规律睡眠、走路和基础训练开始。",
       "icon": "PersonStanding",
@@ -25,7 +25,7 @@
       "id": "professional",
       "label": "专业",
       "short": "专",
-      "score": 10.005,
+      "score": 11.005,
       "target": 60,
       "note": "把工作中的真实交付记录成可见进步。",
       "icon": "BriefcaseBusiness",
@@ -82,6 +82,33 @@
   "normalScore": 40,
   "maxScore": 100,
   "events": [
+    {
+      "id": "growth-1788435214611",
+      "date": "2026-09-03",
+      "type": "运动",
+      "dimensionId": "fitness",
+      "title": "有氧",
+      "points": 0.01,
+      "note": "椭圆机20min 3km"
+    },
+    {
+      "id": "growth-1788417194300",
+      "date": "2026-09-02",
+      "type": "工作",
+      "dimensionId": "professional",
+      "title": "学会大模型新用法",
+      "points": 1,
+      "note": "本地agent直接创建dify工作流"
+    },
+    {
+      "id": "growth-1788407271754",
+      "date": "2026-09-02",
+      "type": "运动",
+      "dimensionId": "fitness",
+      "title": "晚上锻炼完成",
+      "points": 0.02,
+      "note": ""
+    },
     {
       "id": "growth-1788348032758",
       "date": "2026-09-02",

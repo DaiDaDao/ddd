@@ -2,8 +2,8 @@
   "app": {
     "name": "METRIC",
     "descriptor": "地球Online",
-    "tagline": "把今天过成可见的进度",
-    "date": "2026.08.31 · MONDAY",
+    "tagline": "今天是进入游戏的第30年10月30天",
+    "date": "2026.09.03 · THURSDAY",
     "version": "v0.8.1.8 / 大刀"
   },
   "profile": {
@@ -13,11 +13,36 @@
     "focus": "今天，把自己放回第一优先级"
   },
   "navigation": [
-    { "id": "overview", "label": "总览", "caption": "Overview", "icon": "LayoutDashboard" },
-    { "id": "work", "label": "打工赚钱", "caption": "Work Mode", "icon": "BriefcaseBusiness" },
-    { "id": "growth", "label": "六维成长", "caption": "Growth Map", "icon": "Sparkles" },
-    { "id": "rituals", "label": "任务清单", "caption": "Rituals", "icon": "ListChecks" },
-    { "id": "health", "label": "健康复查", "caption": "Health Log", "icon": "Activity" }
+    {
+      "id": "overview",
+      "label": "总览",
+      "caption": "Overview",
+      "icon": "LayoutDashboard"
+    },
+    {
+      "id": "work",
+      "label": "打工赚钱",
+      "caption": "Work Mode",
+      "icon": "BriefcaseBusiness"
+    },
+    {
+      "id": "growth",
+      "label": "六维成长",
+      "caption": "Growth Map",
+      "icon": "Sparkles"
+    },
+    {
+      "id": "rituals",
+      "label": "任务清单",
+      "caption": "Rituals",
+      "icon": "ListChecks"
+    },
+    {
+      "id": "health",
+      "label": "健康复查",
+      "caption": "Health Log",
+      "icon": "Activity"
+    }
   ],
   "overview": {
     "eyebrow": "MONDAY, AUG 31",
@@ -36,10 +61,46 @@
     "pulseCaption": "节奏感不错，给自己留一口气。",
     "pulseHint": "连续第 06 天保持记录",
     "moduleCards": [
-      { "id": "work", "eyebrow": "01 / WORK", "title": "每一秒都在换取选择权", "description": "实时看见今天的工资，顺手算算一杯咖啡需要几秒钟。", "metric": "¥ 0.0167 / sec", "action": "进入工作模式", "icon": "BriefcaseBusiness", "tone": "coral" },
-      { "id": "growth", "eyebrow": "02 / GROWTH", "title": "六个维度，一张生活地图", "description": "身体、心智、关系与创造力，都值得被认真对待。", "metric": "平均 74 / 100", "action": "查看成长地图", "icon": "Sparkles", "tone": "green" },
-      { "id": "rituals", "eyebrow": "03 / RITUALS", "title": "把想成为的自己拆成动作", "description": "从体态纠正到室内跑步，每次只完成眼前这一格。", "metric": "04 个进行中", "action": "打开任务清单", "icon": "ListChecks", "tone": "blue" },
-      { "id": "health", "eyebrow": "04 / HEALTH", "title": "让每次复查都有下一次", "description": "按实际检查的大类录入结果，观察每项指标自己的变化轨迹。", "metric": "04 个检查大类", "action": "打开健康复查", "icon": "Activity", "tone": "yellow" }
+      {
+        "id": "work",
+        "eyebrow": "01 / WORK",
+        "title": "每一秒都在换取选择权",
+        "description": "实时看见今天的工资，顺手算算一杯咖啡需要几秒钟。",
+        "metric": "¥ 0.0167 / sec",
+        "action": "进入工作模式",
+        "icon": "BriefcaseBusiness",
+        "tone": "coral"
+      },
+      {
+        "id": "growth",
+        "eyebrow": "02 / GROWTH",
+        "title": "六个维度，一张生活地图",
+        "description": "身体、心智、关系与创造力，都值得被认真对待。",
+        "metric": "平均 74 / 100",
+        "action": "查看成长地图",
+        "icon": "Sparkles",
+        "tone": "green"
+      },
+      {
+        "id": "rituals",
+        "eyebrow": "03 / RITUALS",
+        "title": "把想成为的自己拆成动作",
+        "description": "从体态纠正到室内跑步，每次只完成眼前这一格。",
+        "metric": "04 个进行中",
+        "action": "打开任务清单",
+        "icon": "ListChecks",
+        "tone": "blue"
+      },
+      {
+        "id": "health",
+        "eyebrow": "04 / HEALTH",
+        "title": "让每次复查都有下一次",
+        "description": "按实际检查的大类录入结果，观察每项指标自己的变化轨迹。",
+        "metric": "04 个检查大类",
+        "action": "打开健康复查",
+        "icon": "Activity",
+        "tone": "yellow"
+      }
     ],
     "todo": {
       "eyebrow": "TODAY / TODO LIST",
@@ -49,8 +110,41 @@
       "emptyLabel": "今天还没有任务，先写下一件吧。",
       "completeLabel": "待完成",
       "items": [
-        { "id": "todo-2", "title": "走路 8,000 步", "tag": "身体", "due": "今天 20:30", "done": false },
-        { "id": "todo-3", "title": "给妈妈回一个电话", "tag": "关系", "due": "今天 21:00", "done": false }
+        {
+          "id": "todo-2",
+          "title": "走路 8,000 步",
+          "tag": "身体",
+          "due": "今天 20:30",
+          "done": false
+        },
+        {
+          "id": "todo-3",
+          "title": "给妈妈回一个电话",
+          "tag": "关系",
+          "due": "今天 21:00",
+          "done": false
+        },
+        {
+          "id": "daily-2026-09-03-daily-water",
+          "title": "喝够今天的水",
+          "tag": "每日任务清单",
+          "due": "今天",
+          "done": false
+        },
+        {
+          "id": "daily-2026-09-03-daily-review",
+          "title": "记录今天的一件完成",
+          "tag": "每日任务清单",
+          "due": "今天",
+          "done": false
+        },
+        {
+          "id": "daily-2026-09-03-daily-reset",
+          "title": "整理明天的第一个动作",
+          "tag": "每日任务清单",
+          "due": "今天",
+          "done": false
+        }
       ]
     }
   }
